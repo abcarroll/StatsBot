@@ -10,7 +10,8 @@
   "locations": {
     "logs": "./logs",
     "stats": "./stats",
-    "url": "http://example.com/statsDir/"
+    "url": "http://example.com/statsDir/",
+    "chanPrefixInUrl": true
   },
   "identity": {
     "nick": "StatsBot",

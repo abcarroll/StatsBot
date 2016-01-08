@@ -86,7 +86,12 @@ final class StatsBot {
             $pingReply = explode(' ', $buffer, 2);
             $this->send('PONG ' . str_replace("\n\r", '', end($pingReply)));
         } elseif(in_array(':' . $this->settings['command'], $bufferParts)) {
-            $this->msg($nick, 'Stats for this channel can be found at ' . $this->settings['locations']['url'] . urlencode($channel) . '.html', 'NOTICE');
+            if($this->settings['locations']['chanPrefixInUrl'] == true) {
+                $urlChannel = $channel;
+            } else {
+                $urlChannel = ltrim($channel, '&#!+.~');
+            }
+            $this->msg($nick, 'Stats for this channel can be found at ' . $this->settings['locations']['url'] . urlencode($urlChannel) . '.html', 'NOTICE');
         } elseif(strtolower($bufferParts[1]) === 'invite' && !in_array($arguments[0], $this->channels)) {
             $this->send('JOIN ' . $arguments[0]);
             $this->channels[] = substr($arguments[0], 1);
@@ -185,14 +190,21 @@ final class StatsBot {
             default:
                 return;
         }
+
+        if($this->settings['locations']['chanPrefixInUrl'] == true) {
+            $channelFile = trim($channel);
+        } else {
+            $channelFile = ltrim(trim($channel), '&#!+.~');
+        }
+
         if(strtolower($bufferParts[1]) === 'nick') {
             foreach($this->channels as $channel) {
-                file_put_contents('logs/' . trim($channel) . '/' . date('Y-m-d') . '.log', $line . "\n", FILE_APPEND);
+                file_put_contents('logs/' . $channelFile . '/' . date('Y-m-d') . '.log', $line . "\n", FILE_APPEND);
             }
 
             return;
         }
-        file_put_contents('logs/' . trim($channel) . '/' . date('Y-m-d') . '.log', $line . "\n", FILE_APPEND);
+        file_put_contents('logs/' . $channelFile . '/' . date('Y-m-d') . '.log', $line . "\n", FILE_APPEND);
     }
 
     function send($line) {
